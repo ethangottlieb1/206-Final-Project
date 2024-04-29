@@ -1,0 +1,272 @@
+import sqlite3
+
+
+def calculate_average_temperature_and_classify(db_name):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    c.execute("""
+        SELECT location, AVG(temperature) AS avg_temp 
+        FROM Weather 
+        WHERE date BETWEEN '2023-09-01' AND '2023-09-30' 
+        GROUP BY location
+    """)
+    avg_temperatures = c.fetchall()
+
+    temperature_groups = {
+        "Cold": [],
+        "Cool": [],
+        "Mild": [],
+        "Warm": [],
+        "Hot": [],
+    }
+
+    for location, avg_temp in avg_temperatures:
+        if avg_temp < 18:
+            temperature_groups["Cold"].append((location, avg_temp))
+        elif 18 <= avg_temp < 20:
+            temperature_groups["Cool"].append((location, avg_temp))
+        elif 20 <= avg_temp < 22:
+            temperature_groups["Mild"].append((location, avg_temp))
+        elif 22 <= avg_temp < 24:
+            temperature_groups["Warm"].append((location, avg_temp))
+        elif 24 <= avg_temp:
+            temperature_groups["Hot"].append((location, avg_temp))
+
+    conn.close()
+
+    return temperature_groups
+
+# Example usage
+temperature_groups = calculate_average_temperature_and_classify("mlb_data.db")
+
+# Print out the locations in each temperature group
+for group, locations in temperature_groups.items():
+    print(f"{group} Locations:")
+    for location, avg_temp in locations:
+        print(f"- {location}: {avg_temp:.2f}°C")
+    print()
+
+
+import sqlite3
+
+def get_average_runs_per_team(database_name):
+    conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
+    query = """
+    SELECT
+      t.name AS team_name,
+      AVG(g.home_score) AS average_home_runs
+    FROM
+      Games g
+    JOIN
+      Teams t ON g.home_team_id = t.id
+    GROUP BY
+      t.name;
+    """
+    cursor.execute(query)
+    results = cursor.fetchall()
+    conn.close()
+
+    return results
+
+# Example usage:
+average_runs_data = get_average_runs_per_team('mlb_data.db')
+for row in average_runs_data:
+    print(row)
+
+#Beginning the next function to calculate average runs per group
+# Define the list of teams and their locations
+teams_locations = {
+    'Angels': 'Anaheim, California',
+    'Astros': 'Houston, Texas',
+    'Athletics': 'Oakland, California',
+    'Blue Jays': 'Toronto, Ontario, Canada',
+    'Braves': 'Cumberland, Georgia',
+    'Brewers': 'Milwaukee, Wisconsin',
+    'Cardinals': 'St. Louis, Missouri',
+    'Cubs': 'Chicago, Illinois',
+    'Diamondbacks': 'Phoenix, Arizona',
+    'Dodgers': 'Los Angeles, California',
+    'Giants': 'San Francisco, California',
+    'Guardians': 'Cleveland, Ohio',
+    'Mariners': 'Seattle, Washington',
+    'Marlins': 'Miami, Florida',
+    'Mets': 'Queens, New York',
+    'Nationals': 'Washington, D.C.',
+    'Orioles': 'Baltimore, Maryland',
+    'Padres': 'San Diego, California',
+    'Phillies': 'Philadelphia, Pennsylvania',
+    'Pirates': 'Pittsburgh, Pennsylvania',
+    'Rangers': 'Arlington, Texas',
+    'Rays': 'St. Petersburg, Florida',
+    'Red Sox': 'Boston, Massachusetts',
+    'Reds': 'Cincinnati, Ohio',
+    'Rockies': 'Denver, Colorado',
+    'Royals': 'Kansas City, Missouri',
+    'Tigers': 'Detroit, Michigan',
+    'Twins': 'Minneapolis, Minnesota',
+    'White Sox': 'Chicago, Illinois',
+    'Yankees': 'Bronx, New York'
+}
+
+# Define average runs per team
+average_runs_data = average_runs_data = get_average_runs_per_team('mlb_data.db')
+# Define weather groups
+temperature_groups = temperature_groups = calculate_average_temperature_and_classify("mlb_data.db")
+
+
+# function to calculate average runs per team in each weather group
+def calculate_average_runs_per_group(teams_locations, average_runs_data, temperature_groups):
+    average_runs_per_group = {}
+
+    for group, locations in temperature_groups.items():
+        total_runs = 0
+        total_teams = 0
+        for location, _ in locations:
+            for team, avg_runs in average_runs_data:
+                if teams_locations[team] == location:
+                    total_runs += avg_runs
+                    total_teams += 1
+                    break
+        if total_teams != 0:
+            average_runs_per_group[group] = total_runs / total_teams
+        else:
+            average_runs_per_group[group] = 0
+
+    return average_runs_per_group
+
+# Calculate average runs per team in each weather group
+average_runs_per_group = calculate_average_runs_per_group(teams_locations, average_runs_data, temperature_groups)
+
+# Print out output 
+for group, average_runs in average_runs_per_group.items():
+    print(f"Average runs per team in {group} weather: {average_runs:.2f}")
+
+
+# First visualization to make a bar chart with average temperature by location and weather group
+import matplotlib.pyplot as plt
+
+def plot_temperature_groups(temperature_groups):
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    colors = {'Cold': 'deepskyblue', 'Cool': 'lightblue', 'Mild': 'limegreen', 'Warm': 'orange', 'Hot': 'red'}
+
+    for group, locations in temperature_groups.items():
+        loc_names = [loc[0] for loc in locations]
+        avg_temps = [loc[1] for loc in locations]
+        ax.barh(loc_names, avg_temps, color=colors[group], label=group)
+
+    ax.set_xlabel('Average Temperature (°C)')
+    ax.set_title('Average Temperature by Location and Weather Group')
+    ax.legend()
+
+    plt.show()
+
+# using it
+plot_temperature_groups(temperature_groups)
+groups = ['Cold', 'Cool', 'Mild', 'Warm', 'Hot'] 
+avg_runs = [average_runs_per_group.get(group, 0) for group in groups]
+colors = ['blue', 'green', 'orange', 'red', 'purple'] 
+
+# Second Visualization to get Average runs at their home stadium per weather group using a linechart
+plt.figure(figsize=(10, 6))
+plt.plot(groups, avg_runs, marker='', linestyle='-', color='black', label='Average Runs')  # Black line
+
+for i, (group, run) in enumerate(zip(groups, avg_runs)):
+    plt.plot(group, run, marker='o', linestyle='', color=colors[i], label=f'{group} ({run:.2f} Runs)')
+
+plt.xlabel('Weather Group')
+plt.ylabel('Average Runs at Home')
+plt.title('Average Runs at Home by Weather Group')
+for i, txt in enumerate(avg_runs):
+    plt.annotate(f'{txt:.2f}', (groups[i], avg_runs[i]), textcoords="offset points", xytext=(0,10), ha='center', color=colors[i])
+legend_labels = {
+    'Cold': 'Below 18°C',
+    'Cool': '18°C to below 20°C',
+    'Mild': '20°C to below 22°C',
+    'Warm': '22°C to below 24°C',
+    'Hot': '24°C and above'
+}
+handles = [plt.Line2D([], [], color=color, marker='o', linestyle='', markersize=8, label=f'{group} ({legend_labels[group]})')
+           for group, color in zip(groups, colors)]
+handles.append(plt.Line2D([], [], color='black', linestyle='-', markersize=8, label='Trend Line'))
+plt.legend(handles=handles, title="Weather Groups")
+
+# Show the plot
+plt.show()
+
+#Third visualization to get a box plot of the cold runs and the hot runs
+cold_runs = [3.2857142857142856, 3.6666666666666665, 3.727272727272727]  # Example data for "Cold" weather
+hot_runs = [5.5, 4.5, 6.2727272727272725, 4.7272727272727275, 4.454545454545454]   # Example data for "Hot" weather
+
+data = [cold_runs, hot_runs]
+labels = ['Cold Weather', 'Hot Weather']
+weather_definitions = ['Below 18°C', '24°C and above']
+colors = ['skyblue', 'salmon']  # Distinct colors for each weather type
+
+# Create boxplot
+plt.figure(figsize=(10, 6))
+bp = plt.boxplot(data, labels=labels, notch=False, patch_artist=True,
+                 medianprops=dict(color='darkblue', linewidth=2))
+for patch, color in zip(bp['boxes'], colors):
+    patch.set_facecolor(color)
+
+# Adding a legend
+legend_elements = [plt.Line2D([0], [0], color=color, lw=4, label=f'{label} ({definition})')
+                   for color, label, definition in zip(colors, labels, weather_definitions)]
+plt.legend(handles=legend_elements, loc='upper right', title="Weather Definitions")
+
+plt.title('Boxplot of Average Runs at Home in Cold vs. Hot Weather')
+plt.ylabel('Average Runs at Home')
+plt.grid(True, linestyle='--', which='both', axis='y', alpha=0.7)
+
+plt.show()
+
+# 4th visualization to get a bar graph of average runs per team
+def plot_average_runs_per_team(average_runs_data):
+    teams = [row[0] for row in average_runs_data]
+    average_runs = [row[1] for row in average_runs_data]
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    ax.barh(teams, average_runs, color='skyblue')
+    
+    ax.set_xlabel('Average Runs')
+    ax.set_ylabel('Team')
+    ax.set_title('Average Runs per Team')
+
+    plt.show()
+
+# using it
+plot_average_runs_per_team(get_average_runs_per_team('mlb_data.db'))
+
+# 5th visualization that helps show correlatioin between temperature and average number of runs scored
+def plot_runs_vs_temperature(average_runs_per_group, temperature_groups):
+    weather_groups = ['Cold', 'Cool', 'Mild', 'Warm', 'Hot']
+    
+    # Calculate average runs and temperatures
+    avg_runs = [average_runs_per_group[group] for group in weather_groups]
+    avg_temps = [sum(temp[1] for temp in temperature_groups[group]) / len(temperature_groups[group]) for group in weather_groups]
+
+    plt.figure(figsize=(10, 6))
+    plt.scatter(avg_temps, avg_runs, color='skyblue', s=100, edgecolors='black', alpha=0.7)
+
+    plt.xlabel('Average Temperature (°C)')
+    plt.ylabel('Average Runs per Team')
+    plt.title('Average Runs per Team vs. Average Temperature by Weather Group')
+    
+    # linear fit
+    slope = (len(avg_temps) * sum(x * y for x, y in zip(avg_temps, avg_runs)) - sum(avg_temps) * sum(avg_runs)) / \
+            (len(avg_temps) * sum(x ** 2 for x in avg_temps) - sum(avg_temps) ** 2)
+    intercept = (sum(avg_runs) - slope * sum(avg_temps)) / len(avg_temps)
+    fit_line = [slope * temp + intercept for temp in avg_temps]
+    
+    plt.plot(avg_temps, fit_line, "r--")
+    
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+plot_runs_vs_temperature(average_runs_per_group, temperature_groups)
+

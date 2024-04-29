@@ -1,0 +1,83 @@
+MLB Average Runs Report by Weather Conditions
+
+Weather Categories and Stadium Temperatures:
+
+Cold Locations (Average Temperature below 18°C):
+  Oakland, California: 17.98°C (Oakland Athletics)
+  San Francisco, California: 17.03°C (San Francisco Giants)
+  Seattle, Washington: 16.45°C (Seattle Mariners)
+
+Cool Locations (Average Temperature 18°C to below 20°C):
+  Boston, Massachusetts: 19.35°C (Boston Red Sox)
+  Cleveland, Ohio: 19.13°C (Cleveland Guardians)
+  Denver, Colorado: 18.71°C (Colorado Rockies)
+  Detroit, Michigan: 19.05°C (Detroit Tigers)
+  Milwaukee, Wisconsin: 19.23°C (Milwaukee Brewers)
+  Minneapolis, Minnesota: 19.80°C (Minnesota Twins)
+  Pittsburgh, Pennsylvania: 19.10°C (Pittsburgh Pirates)
+  Toronto, Ontario, Canada: 18.40°C (Toronto Blue Jays)
+
+Mild Locations (Average Temperature 20°C to below 22°C):
+  Anaheim, California: 21.37°C (Los Angeles Angels)
+  Baltimore, Maryland: 21.80°C (Baltimore Orioles)
+  Bronx, New York: 20.75°C (New York Yankees)
+  Chicago, Illinois: 20.02°C (Chicago Cubs/Chicago White Sox)
+  Cincinnati, Ohio: 21.24°C (Cincinnati Reds)
+  Los Angeles, California: 21.88°C (Los Angeles Dodgers)
+  Philadelphia, Pennsylvania: 21.52°C (Philadelphia Phillies)
+  Queens, New York: 21.10°C (New York Mets)
+  San Diego, California: 20.81°C (San Diego Padres)
+  St. Louis, Missouri: 21.86°C (St. Louis Cardinals)
+
+Warm Locations (Average Temperature 22°C to below 24°C):
+  Cumberland, Georgia: 22.97°C (Atlanta Braves)
+  Kansas City, Missouri: 22.40°C (Kansas City Royals)
+  Washington, D.C.: 22.58°C (Washington Nationals)
+
+Hot Locations (Average Temperature 24°C and above):
+  Arlington, Texas: 28.90°C (Texas Rangers)
+  Houston, Texas: 28.82°C (Houston Astros)
+  Miami, Florida: 28.06°C (Miami Marlins)
+  Phoenix, Arizona: 31.09°C (Arizona Diamondbacks)
+  St. Petersburg, Florida: 27.64°C (Tampa Bay Rays)
+
+Average Runs at Home per Team:
+
+Angels: 3.69
+Astros: 4.50
+Athletics: 3.29
+Blue Jays: 3.92
+Braves: 5.27
+Brewers: 4.77
+Cardinals: 3.90
+Cubs: 5.64
+Diamondbacks: 4.73
+Dodgers: 4.82
+Giants: 3.67
+Guardians: 5.15
+Mariners: 3.73
+Marlins: 6.27
+Mets: 5.77
+Nationals: 5.08
+Orioles: 3.45
+Padres: 6.10
+Phillies: 4.82
+Pirates: 3.75
+Rangers: 5.50
+Rays: 4.45
+Red Sox: 4.50
+Reds: 5.17
+Rockies: 7.00
+Royals: 6.83
+Tigers: 5.33
+Twins: 4.80
+White Sox: 3.07
+Yankees: 4.00
+
+Average Runs at Home by Weather Condition:
+
+Cold weather: 3.56
+Cool weather: 4.90
+Mild weather: 4.82
+Warm weather: 5.73
+Hot weather: 5.09

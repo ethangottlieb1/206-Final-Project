@@ -1,0 +1,143 @@
+import sqlite3
+
+
+def calculate_average_temperature_and_classify(db_name):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    c.execute("""
+        SELECT location, AVG(temperature) AS avg_temp 
+        FROM Weather 
+        WHERE date BETWEEN '2023-09-01' AND '2023-09-30' 
+        GROUP BY location
+    """)
+    avg_temperatures = c.fetchall()
+
+    temperature_groups = {
+        "Cold": [],
+        "Cool": [],
+        "Mild": [],
+        "Warm": [],
+        "Hot": [],
+    }
+
+    for location, avg_temp in avg_temperatures:
+        if avg_temp < 18:
+            temperature_groups["Cold"].append((location, avg_temp))
+        elif 18 <= avg_temp < 20:
+            temperature_groups["Cool"].append((location, avg_temp))
+        elif 20 <= avg_temp < 22:
+            temperature_groups["Mild"].append((location, avg_temp))
+        elif 22 <= avg_temp < 24:
+            temperature_groups["Warm"].append((location, avg_temp))
+        elif 24 <= avg_temp:
+            temperature_groups["Hot"].append((location, avg_temp))
+
+    conn.close()
+
+    return temperature_groups
+
+# using it
+temperature_groups = calculate_average_temperature_and_classify("mlb_data.db")
+
+# print the locations in each temperature group
+for group, locations in temperature_groups.items():
+    print(f"{group} Locations:")
+    for location, avg_temp in locations:
+        print(f"- {location}: {avg_temp:.2f}°C")
+    print()
+
+#creating new function to get average runs per mlb team
+def get_average_runs_per_team(database_name):
+    conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
+    query = """
+    SELECT
+      t.name AS team_name,
+      AVG(g.home_score) AS average_home_runs
+    FROM
+      Games g
+    JOIN
+      Teams t ON g.home_team_id = t.id
+    GROUP BY
+      t.name;
+    """
+
+    cursor.execute(query)
+    results = cursor.fetchall()
+    conn.close()
+
+    return results
+
+# using it
+average_runs_data = get_average_runs_per_team('mlb_data.db')
+for row in average_runs_data:
+    print(row)
+
+# beginning new function to get average runs per weather group
+# Define teams and their stadium locations
+teams_locations = {
+    'Angels': 'Anaheim, California',
+    'Astros': 'Houston, Texas',
+    'Athletics': 'Oakland, California',
+    'Blue Jays': 'Toronto, Ontario, Canada',
+    'Braves': 'Cumberland, Georgia',
+    'Brewers': 'Milwaukee, Wisconsin',
+    'Cardinals': 'St. Louis, Missouri',
+    'Cubs': 'Chicago, Illinois',
+    'Diamondbacks': 'Phoenix, Arizona',
+    'Dodgers': 'Los Angeles, California',
+    'Giants': 'San Francisco, California',
+    'Guardians': 'Cleveland, Ohio',
+    'Mariners': 'Seattle, Washington',
+    'Marlins': 'Miami, Florida',
+    'Mets': 'Queens, New York',
+    'Nationals': 'Washington, D.C.',
+    'Orioles': 'Baltimore, Maryland',
+    'Padres': 'San Diego, California',
+    'Phillies': 'Philadelphia, Pennsylvania',
+    'Pirates': 'Pittsburgh, Pennsylvania',
+    'Rangers': 'Arlington, Texas',
+    'Rays': 'St. Petersburg, Florida',
+    'Red Sox': 'Boston, Massachusetts',
+    'Reds': 'Cincinnati, Ohio',
+    'Rockies': 'Denver, Colorado',
+    'Royals': 'Kansas City, Missouri',
+    'Tigers': 'Detroit, Michigan',
+    'Twins': 'Minneapolis, Minnesota',
+    'White Sox': 'Chicago, Illinois',
+    'Yankees': 'Bronx, New York'
+}
+
+# Define the output of average runs per team
+average_runs_data = average_runs_data = get_average_runs_per_team('mlb_data.db')
+# Define the output of weather groups
+temperature_groups = temperature_groups = calculate_average_temperature_and_classify("mlb_data.db")
+
+
+# function to get average runs per weather group 
+def calculate_average_runs_per_group(teams_locations, average_runs_data, temperature_groups):
+    average_runs_per_group = {}
+
+    for group, locations in temperature_groups.items():
+        total_runs = 0
+        total_teams = 0
+        for location, _ in locations:
+            for team, avg_runs in average_runs_data:
+                if teams_locations[team] == location:
+                    total_runs += avg_runs
+                    total_teams += 1
+                    break
+        if total_teams != 0:
+            average_runs_per_group[group] = total_runs / total_teams
+        else:
+            average_runs_per_group[group] = 0
+
+    return average_runs_per_group
+
+# Calculate average runs per team in each weather group
+average_runs_per_group = calculate_average_runs_per_group(teams_locations, average_runs_data, temperature_groups)
+
+# print out the output 
+for group, average_runs in average_runs_per_group.items():
+    print(f"Average runs per team in {group} weather: {average_runs:.2f}")
